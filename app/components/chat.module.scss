@@ -478,6 +478,15 @@
   flex: 1;
 }
 
+.chat-input-panel-list {
+  position: absolute;
+  top: 46px;
+  bottom: 0;
+  left: 16px;
+  right: 14px;
+  overflow-y: scroll;
+}
+
 .chat-input {
   height: 100%;
   width: 100%;

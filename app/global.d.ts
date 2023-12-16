@@ -11,6 +11,7 @@ declare module "*.scss" {
 declare module "*.svg";
 
 declare interface Window {
+  webkitSpeechRecognition: any;
   __TAURI__?: {
     writeText(text: string): Promise<void>;
     invoke(command: string, payload?: Record<string, unknown>): Promise<any>;
@@ -20,7 +21,7 @@ declare interface Window {
     fs: {
       writeBinaryFile(path: string, data: Uint8Array): Promise<void>;
     };
-    notification:{
+    notification: {
       requestPermission(): Promise<Permission>;
       isPermissionGranted(): Promise<boolean>;
       sendNotification(options: string | Options): void;

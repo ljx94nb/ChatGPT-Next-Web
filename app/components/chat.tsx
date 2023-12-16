@@ -34,6 +34,8 @@ import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
+import RecordIcon from "../icons/record.svg";
+import RecordingIcon from "../icons/recording.svg";
 
 import {
   ChatMessage,
@@ -89,10 +91,21 @@ import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
 import { getClientConfig } from "../config/client";
 import { useAllModels } from "../utils/hooks";
+import { formatTime } from "../utils/formatTime";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
 });
+
+const recognition = new window.webkitSpeechRecognition();
+recognition.lang = "zh-CN"; // 设置识别语言为简体中文
+recognition.interimResults = true; // 允许返回中间结果
+recognition.continuous = true; // 允许持续识别
+
+interface RecordItem {
+  text: string;
+  member?: string;
+}
 
 export function SessionConfigModel(props: { onClose: () => void }) {
   const chatStore = useChatStore();
@@ -405,11 +418,20 @@ function useScrollToBottom() {
   };
 }
 
-export function ChatActions(props: {
+export function ChatActions({
+  recordTime,
+  setRecordTime,
+  hitBottom,
+  scrollToBottom,
+  showPromptModal,
+  showPromptHints,
+}: {
   showPromptModal: () => void;
   scrollToBottom: () => void;
   showPromptHints: () => void;
   hitBottom: boolean;
+  recordTime: number;
+  setRecordTime: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -438,6 +460,30 @@ export function ChatActions(props: {
   );
   const [showModelSelector, setShowModelSelector] = useState(false);
 
+  // record
+  const recordClock = useRef<NodeJS.Timeout>();
+
+  const handleRecord = () => {
+    if (recordTime) {
+      clearInterval(recordClock.current);
+      setRecordTime(0);
+      recognition.stop();
+    } else {
+      setRecordTime(recordTime + 1);
+      recognition.start();
+      recordClock.current = setInterval(() => {
+        setRecordTime((time) => time + 1);
+      }, 1000);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearInterval(recordClock.current);
+      recognition.stop();
+    };
+  }, []);
+
   useEffect(() => {
     // if current model is not available
     // switch to first available model
@@ -460,16 +506,16 @@ export function ChatActions(props: {
           icon={<StopIcon />}
         />
       )}
-      {!props.hitBottom && (
+      {!hitBottom && (
         <ChatAction
-          onClick={props.scrollToBottom}
+          onClick={scrollToBottom}
           text={Locale.Chat.InputActions.ToBottom}
           icon={<BottomIcon />}
         />
       )}
-      {props.hitBottom && (
+      {hitBottom && (
         <ChatAction
-          onClick={props.showPromptModal}
+          onClick={showPromptModal}
           text={Locale.Chat.InputActions.Settings}
           icon={<SettingsIcon />}
         />
@@ -492,7 +538,7 @@ export function ChatActions(props: {
       />
 
       <ChatAction
-        onClick={props.showPromptHints}
+        onClick={showPromptHints}
         text={Locale.Chat.InputActions.Prompt}
         icon={<PromptIcon />}
       />
@@ -524,6 +570,12 @@ export function ChatActions(props: {
         onClick={() => setShowModelSelector(true)}
         text={currentModel}
         icon={<RobotIcon />}
+      />
+
+      <ChatAction
+        onClick={handleRecord}
+        text={formatTime(recordTime)}
+        icon={recordTime ? <RecordingIcon /> : <RecordIcon />}
       />
 
       {showModelSelector && (
@@ -628,6 +680,10 @@ function _Chat() {
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
+
+  // record
+  const [recordTime, setRecordTime] = useState(0);
+  const [recordList, setRecordList] = useState<RecordItem[]>([]);
 
   // prompt hints
   const promptStore = usePromptStore();
@@ -1048,6 +1104,15 @@ function _Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (recordTime) {
+      recognition.onresult = (event: Record<string, any>) => {
+        const transcript = event.results[0][0].transcript; // 获取识别结果文本
+        setRecordList((recordList) => [...recordList, { text: transcript }]);
+      };
+    }
+  }, [recordTime]);
+
   return (
     <div className={styles.chat} key={session.id}>
       <div className="window-header" data-tauri-drag-region>
@@ -1262,7 +1327,10 @@ function _Chat() {
         })}
       </div>
 
-      <div className={styles["chat-input-panel"]}>
+      <div
+        className={styles["chat-input-panel"]}
+        style={recordTime ? { height: 400 } : {}}
+      >
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
         <ChatActions
@@ -1280,31 +1348,43 @@ function _Chat() {
             setUserInput("/");
             onSearch("");
           }}
+          recordTime={recordTime}
+          setRecordTime={setRecordTime}
         />
-        <div className={styles["chat-input-panel-inner"]}>
-          <textarea
-            ref={inputRef}
-            className={styles["chat-input"]}
-            placeholder={Locale.Chat.Input(submitKey)}
-            onInput={(e) => onInput(e.currentTarget.value)}
-            value={userInput}
-            onKeyDown={onInputKeyDown}
-            onFocus={scrollToBottom}
-            onClick={scrollToBottom}
-            rows={inputRows}
-            autoFocus={autoFocus}
-            style={{
-              fontSize: config.fontSize,
-            }}
-          />
-          <IconButton
-            icon={<SendWhiteIcon />}
-            text={Locale.Chat.Send}
-            className={styles["chat-input-send"]}
-            type="primary"
-            onClick={() => doSubmit(userInput)}
-          />
-        </div>
+        {recordTime ? (
+          <div className={styles["chat-input-panel-list"]}>
+            <List>
+              {recordList.map((item, index) => (
+                <ListItem key={index} title="发言人" subTitle={item?.text} />
+              ))}
+            </List>
+          </div>
+        ) : (
+          <div className={styles["chat-input-panel-inner"]}>
+            <textarea
+              ref={inputRef}
+              className={styles["chat-input"]}
+              placeholder={Locale.Chat.Input(submitKey)}
+              onInput={(e) => onInput(e.currentTarget.value)}
+              value={userInput}
+              onKeyDown={onInputKeyDown}
+              onFocus={scrollToBottom}
+              onClick={scrollToBottom}
+              rows={inputRows}
+              autoFocus={autoFocus}
+              style={{
+                fontSize: config.fontSize,
+              }}
+            />
+            <IconButton
+              icon={<SendWhiteIcon />}
+              text={Locale.Chat.Send}
+              className={styles["chat-input-send"]}
+              type="primary"
+              onClick={() => doSubmit(userInput)}
+            />
+          </div>
+        )}
       </div>
 
       {showExport && (
