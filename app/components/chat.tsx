@@ -1097,21 +1097,18 @@ function _Chat() {
       localStorage.removeItem(key);
     }
 
+    // recept record data
+    recognition.onresult = (event: Record<string, any>) => {
+      const transcript = event.results[0][0].transcript; // 获取识别结果文本
+      setRecordList((recordList) => [...recordList, { text: transcript }]);
+    };
+
     const dom = inputRef.current;
     return () => {
       localStorage.setItem(key, dom?.value ?? "");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (recordTime) {
-      recognition.onresult = (event: Record<string, any>) => {
-        const transcript = event.results[0][0].transcript; // 获取识别结果文本
-        setRecordList((recordList) => [...recordList, { text: transcript }]);
-      };
-    }
-  }, [recordTime]);
 
   return (
     <div className={styles.chat} key={session.id}>
@@ -1355,7 +1352,14 @@ function _Chat() {
           <div className={styles["chat-input-panel-list"]}>
             <List>
               {recordList.map((item, index) => (
-                <ListItem key={index} title="发言人" subTitle={item?.text} />
+                <ListItem key={index} title="发言人" subTitle={item?.text}>
+                  <IconButton
+                    icon={<SendWhiteIcon />}
+                    text={Locale.Chat.Send}
+                    type="primary"
+                    onClick={() => doSubmit(item?.text)}
+                  />
+                </ListItem>
               ))}
             </List>
           </div>
