@@ -1102,12 +1102,14 @@ function _Chat() {
     recognition.onresult = (event: Record<string, any>) => {
       const transcript = event.results[0][0].transcript; // 获取识别结果文本
       setRecordList((recordList) => {
-        const similarNum = similarStr(
-          recordList[recordList.length - 1].text,
-          transcript,
-        );
-        if (similarNum > 90) {
-          recordList.pop();
+        if (recordList.length) {
+          const similarNum = similarStr(
+            recordList[recordList.length - 1].text,
+            transcript,
+          );
+          if (similarNum > 90) {
+            recordList.pop();
+          }
         }
         return [...recordList, { text: transcript }];
       });
