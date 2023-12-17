@@ -92,6 +92,7 @@ import { ExportMessageModal } from "./exporter";
 import { getClientConfig } from "../config/client";
 import { useAllModels } from "../utils/hooks";
 import { formatTime } from "../utils/formatTime";
+import { similarStr } from "../utils/similarStr";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
@@ -1100,7 +1101,16 @@ function _Chat() {
     // recept record data
     recognition.onresult = (event: Record<string, any>) => {
       const transcript = event.results[0][0].transcript; // 获取识别结果文本
-      setRecordList((recordList) => [...recordList, { text: transcript }]);
+      setRecordList((recordList) => {
+        const similarNum = similarStr(
+          recordList[recordList.length - 1].text,
+          transcript,
+        );
+        if (similarNum > 90) {
+          recordList.pop();
+        }
+        return [...recordList, { text: transcript }];
+      });
     };
 
     const dom = inputRef.current;
