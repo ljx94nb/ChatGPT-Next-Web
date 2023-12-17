@@ -1103,12 +1103,12 @@ function _Chat() {
       const transcript = event.results[0][0].transcript; // 获取识别结果文本
       setRecordList((recordList) => {
         if (recordList.length) {
-          const similarNum = similarStr(
-            recordList[recordList.length - 1].text,
-            transcript,
+          const lastTranscript = recordList[recordList.length - 1].text;
+          const similarNum = similarStr(lastTranscript, transcript);
+          console.log(
+            `"${transcript}"和"${lastTranscript}"的文本相似度: ${similarNum}%`,
           );
-          console.log(`文本相似度: ${similarNum}%`);
-          if (similarNum > 70) {
+          if (similarNum > 50) {
             recordList.pop();
           }
         }
