@@ -1107,7 +1107,8 @@ function _Chat() {
             recordList[recordList.length - 1].text,
             transcript,
           );
-          if (similarNum > 90) {
+          console.log(`文本相似度: ${similarNum}%`);
+          if (similarNum > 70) {
             recordList.pop();
           }
         }
