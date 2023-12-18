@@ -21,16 +21,9 @@ export const CN_MASKS: BuiltinMask[] = [
       },
       {
         id: "interviewee-2",
-        role: "assistant",
-        content:
-          "助手善于解释实时监听转译的对话文本，结合上下文提取出其中的关键问题，并按照以下策略过滤无用问题：1、与面试无关的问题，如：你会打篮球吗、你是单身吗；",
-        date: "",
-      },
-      {
-        id: "interviewee-3",
         role: "system",
         content:
-          "系统根据助手提取出的问题一一解答，并以如下形式返回：Q1: {question}\nA1: {answer}\n",
+          "你善于解释实时监听转译的对话文本，结合上下文提取出其中的关键问题，辨别其中存在的错别字和不符合当前语境的文本，纠正并按照以下策略过滤无用问题：1、与面试无关的问题，如：你会打篮球吗、你是单身吗。最后对纠正后的问题一一解答，并以如下形式返回：Q1: {question}\nA1: {answer}\n",
         date: "",
       },
     ],
@@ -46,6 +39,7 @@ export const CN_MASKS: BuiltinMask[] = [
     },
     lang: "cn",
     builtin: true,
+    hideContext: true,
     createdAt: 1702883282909,
   },
   {
