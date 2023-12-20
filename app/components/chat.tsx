@@ -99,9 +99,10 @@ const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
 });
 
 const recognition = new window.webkitSpeechRecognition();
-recognition.lang = "zh-CN"; // 设置识别语言为简体中文
-recognition.interimResults = true; // 允许返回中间结果
-recognition.continuous = true; // 允许持续识别
+recognition.lang = "zh-CN";
+recognition.interimResults = false;
+recognition.continuous = false;
+recognition.maxAlternatives = 1;
 
 interface RecordItem {
   text: string;
@@ -464,11 +465,15 @@ export function ChatActions({
   // record
   const recordClock = useRef<NodeJS.Timeout>();
 
+  const clearClock = () => {
+    clearInterval(recordClock.current);
+    setRecordTime(0);
+    recognition.stop();
+  };
+
   const handleRecord = () => {
     if (recordTime) {
-      clearInterval(recordClock.current);
-      setRecordTime(0);
-      recognition.stop();
+      clearClock();
     } else {
       setRecordTime(recordTime + 1);
       recognition.start();
@@ -479,10 +484,7 @@ export function ChatActions({
   };
 
   useEffect(() => {
-    return () => {
-      clearInterval(recordClock.current);
-      recognition.stop();
-    };
+    return clearClock;
   }, []);
 
   useEffect(() => {
@@ -1100,19 +1102,19 @@ function _Chat() {
 
     // recept record data
     recognition.onresult = (event: Record<string, any>) => {
-      const transcript = event.results[0][0].transcript; // 获取识别结果文本
+      const transcript = event.results[0][0].transcript;
       setRecordList((recordList) => {
         if (recordList.length) {
-          const lastTranscript = recordList[recordList.length - 1].text;
-          const similarNum = similarStr(lastTranscript, transcript);
+          const firstTranscript = recordList[0].text;
+          const similarNum = similarStr(firstTranscript, transcript);
           console.log(
-            `"${transcript}"和"${lastTranscript}"的文本相似度: ${similarNum}%`,
+            `"${transcript}"和"${firstTranscript}"的文本相似度: ${similarNum}%`,
           );
           if (similarNum > 50) {
-            recordList.pop();
+            recordList.shift();
           }
         }
-        return [...recordList, { text: transcript }];
+        return [{ text: transcript }, ...recordList];
       });
     };
 
@@ -1337,10 +1339,7 @@ function _Chat() {
         })}
       </div>
 
-      <div
-        className={styles["chat-input-panel"]}
-        style={recordTime ? { height: 400 } : {}}
-      >
+      <div className={styles["chat-input-panel"]}>
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
         <ChatActions
