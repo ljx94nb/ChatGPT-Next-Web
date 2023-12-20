@@ -479,6 +479,7 @@ export function ChatActions({
       recognition.start();
       recordClock.current = setInterval(() => {
         setRecordTime((time) => time + 1);
+        recognition.start();
       }, 1000);
     }
   };
@@ -1339,7 +1340,10 @@ function _Chat() {
         })}
       </div>
 
-      <div className={styles["chat-input-panel"]}>
+      <div
+        className={styles["chat-input-panel"]}
+        style={recordTime ? { height: 200 } : {}}
+      >
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
         <ChatActions
