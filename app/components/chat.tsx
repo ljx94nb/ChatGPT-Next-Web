@@ -1385,7 +1385,7 @@ function _Chat() {
                 >
                   <IconButton
                     icon={<SendWhiteIcon />}
-                    text={Locale.Chat.Send}
+                    // text={Locale.Chat.Send}
                     type="primary"
                     onClick={() => doSubmit(item?.text)}
                   />
