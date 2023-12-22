@@ -1368,7 +1368,19 @@ function _Chat() {
           <div className={styles["chat-input-panel-list"]}>
             <List>
               {recordList.map((item, index) => (
-                <ListItem key={index} title="发言人" subTitle={item?.text}>
+                <ListItem
+                  key={index}
+                  title="发言人"
+                  subTitle={
+                    <input
+                      value={item?.text}
+                      onInput={(e) => {
+                        recordList[index].text = e.currentTarget.value;
+                        setRecordList([...recordList]);
+                      }}
+                    />
+                  }
+                >
                   <IconButton
                     icon={<SendWhiteIcon />}
                     text={Locale.Chat.Send}
