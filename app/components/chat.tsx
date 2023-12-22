@@ -1378,6 +1378,8 @@ function _Chat() {
                         recordList[index].text = e.currentTarget.value;
                         setRecordList([...recordList]);
                       }}
+                      size={100}
+                      style={{ marginTop: 4 }}
                     />
                   }
                 >
