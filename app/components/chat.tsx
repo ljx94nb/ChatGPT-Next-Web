@@ -541,11 +541,13 @@ export function ChatActions({
         }
       />
 
-      <ChatAction
-        onClick={showPromptHints}
-        text={Locale.Chat.InputActions.Prompt}
-        icon={<PromptIcon />}
-      />
+      {recordTime ? null : (
+        <ChatAction
+          onClick={showPromptHints}
+          text={Locale.Chat.InputActions.Prompt}
+          icon={<PromptIcon />}
+        />
+      )}
 
       <ChatAction
         onClick={() => {
