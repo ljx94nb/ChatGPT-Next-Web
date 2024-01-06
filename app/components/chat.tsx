@@ -428,6 +428,7 @@ export function ChatActions({
   scrollToBottom,
   showPromptModal,
   showPromptHints,
+  isMobileScreen,
 }: {
   showPromptModal: () => void;
   scrollToBottom: () => void;
@@ -435,6 +436,7 @@ export function ChatActions({
   hitBottom: boolean;
   recordTime: number;
   setRecordTime: React.Dispatch<React.SetStateAction<number>>;
+  isMobileScreen: boolean;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -486,7 +488,7 @@ export function ChatActions({
   };
 
   // set recording hotkey
-  useHotkeys("shift+r", handleRecord, [recordTime]);
+  useHotkeys("shift+r", () => isMobileScreen && handleRecord(), [recordTime]);
 
   useEffect(() => {
     return clearClock;
@@ -1370,6 +1372,7 @@ function _Chat() {
           }}
           recordTime={recordTime}
           setRecordTime={setRecordTime}
+          isMobileScreen={isMobileScreen}
         />
         {recordTime ? (
           <div className={styles["chat-input-panel-list"]}>
@@ -1412,7 +1415,7 @@ function _Chat() {
               onFocus={scrollToBottom}
               onClick={scrollToBottom}
               rows={inputRows}
-              // autoFocus={autoFocus}
+              autoFocus={autoFocus}
               style={{
                 fontSize: config.fontSize,
               }}
