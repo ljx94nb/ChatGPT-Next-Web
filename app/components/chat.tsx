@@ -1412,7 +1412,7 @@ function _Chat() {
               onFocus={scrollToBottom}
               onClick={scrollToBottom}
               rows={inputRows}
-              autoFocus={autoFocus}
+              // autoFocus={autoFocus}
               style={{
                 fontSize: config.fontSize,
               }}
