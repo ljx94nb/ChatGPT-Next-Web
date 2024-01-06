@@ -698,6 +698,11 @@ function _Chat() {
   const [recordTime, setRecordTime] = useState(0);
   const [recordList, setRecordList] = useState<RecordItem[]>([]);
 
+  // set hotkey to submit recordList
+  useHotkeys("enter", () => recordList[0] && doSubmit(recordList[0].text), [
+    recordList,
+  ]);
+
   // prompt hints
   const promptStore = usePromptStore();
   const [promptHints, setPromptHints] = useState<RenderPompt[]>([]);
