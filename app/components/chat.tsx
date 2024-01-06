@@ -486,7 +486,7 @@ export function ChatActions({
   };
 
   // set recording hotkey
-  useHotkeys("shift+r", handleRecord, []);
+  useHotkeys("shift+r", handleRecord, [recordTime]);
 
   useEffect(() => {
     return clearClock;
