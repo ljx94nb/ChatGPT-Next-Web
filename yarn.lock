@@ -5236,6 +5236,11 @@ react-dom@^18.2.0:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
 
+react-hotkeys-hook@^4.4.3:
+  version "4.4.3"
+  resolved "https://registry.yarnpkg.com/react-hotkeys-hook/-/react-hotkeys-hook-4.4.3.tgz#719b7cdc989be067fca421ccb83daa86498f6e94"
+  integrity sha512-G6psp7OUm9xxY4G2vL48tBwWUVJLvD/PeInaPdPvqRJ8GoXBu6Djqr6WIw5gu1M0SbR1epNUlvpccxu2ZzmtFQ==
+
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.npm.taobao.org/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"

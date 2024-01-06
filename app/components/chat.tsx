@@ -7,6 +7,7 @@ import React, {
   useCallback,
   Fragment,
 } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import SendWhiteIcon from "../icons/send-white.svg";
 import BrainIcon from "../icons/brain.svg";
@@ -483,6 +484,9 @@ export function ChatActions({
       }, 1000);
     }
   };
+
+  // set recording hotkey
+  useHotkeys("shift+r", handleRecord, []);
 
   useEffect(() => {
     return clearClock;
