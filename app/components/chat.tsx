@@ -703,11 +703,6 @@ function _Chat() {
     recordList,
   ]);
 
-  // when input focus will trigger
-  const enterKeyRef = useHotkeys<HTMLInputElement>("enter", () =>
-    doSubmit(recordList[0].text),
-  );
-
   // prompt hints
   const promptStore = usePromptStore();
   const [promptHints, setPromptHints] = useState<RenderPompt[]>([]);
@@ -1393,11 +1388,13 @@ function _Chat() {
                   title="发言人"
                   subTitle={
                     <input
-                      ref={enterKeyRef}
                       value={item?.text}
                       onInput={(e) => {
                         recordList[index].text = e.currentTarget.value;
                         setRecordList([...recordList]);
+                      }}
+                      onKeyDown={(e) => {
+                        e.key === "Enter" && doSubmit(item?.text);
                       }}
                       size={40}
                       style={{ marginTop: 4 }}
