@@ -429,6 +429,7 @@ export function ChatActions({
   showPromptModal,
   showPromptHints,
   isMobileScreen,
+  setRecordList,
 }: {
   showPromptModal: () => void;
   scrollToBottom: () => void;
@@ -436,6 +437,7 @@ export function ChatActions({
   hitBottom: boolean;
   recordTime: number;
   setRecordTime: React.Dispatch<React.SetStateAction<number>>;
+  setRecordList: React.Dispatch<React.SetStateAction<RecordItem[]>>;
   isMobileScreen: boolean;
 }) {
   const config = useAppConfig();
@@ -477,6 +479,7 @@ export function ChatActions({
   const handleRecord = () => {
     if (recordTime) {
       clearClock();
+      setRecordList([]);
     } else {
       setRecordTime(recordTime + 1);
       recognition.start();
@@ -1377,6 +1380,7 @@ function _Chat() {
           }}
           recordTime={recordTime}
           setRecordTime={setRecordTime}
+          setRecordList={setRecordList}
           isMobileScreen={isMobileScreen}
         />
         {recordTime ? (
