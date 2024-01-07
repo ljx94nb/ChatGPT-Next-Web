@@ -490,8 +490,20 @@ export function ChatActions({
     }
   };
 
+  const handleCtx = () => {
+    chatStore.updateCurrentSession((session) => {
+      if (session.clearContextIndex === session.messages.length) {
+        session.clearContextIndex = undefined;
+      } else {
+        session.clearContextIndex = session.messages.length;
+        session.memoryPrompt = ""; // will clear memory
+      }
+    });
+  };
+
   // set recording hotkey
   useHotkeys("shift+r", () => isMobileScreen && handleRecord(), [recordTime]);
+  useHotkeys("shift+c", handleCtx, []);
 
   useEffect(() => {
     return clearClock;
@@ -570,16 +582,7 @@ export function ChatActions({
       <ChatAction
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
-        onClick={() => {
-          chatStore.updateCurrentSession((session) => {
-            if (session.clearContextIndex === session.messages.length) {
-              session.clearContextIndex = undefined;
-            } else {
-              session.clearContextIndex = session.messages.length;
-              session.memoryPrompt = ""; // will clear memory
-            }
-          });
-        }}
+        onClick={handleCtx}
       />
 
       <ChatAction
